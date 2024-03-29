@@ -1,0 +1,55 @@
+@startuml
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Container.puml
+
+!define DEVICONS https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/master/devicons
+!define FONTAWESOME https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/master/font-awesome-5
+
+!include FONTAWESOME/users.puml
+
+AddElementTag("microService", $shape=EightSidedShape(), $bgColor="CornflowerBlue", $fontColor="white", $legendText="micro service\neight sided")
+AddElementTag("storage", $shape=RoundedBoxShape(), $bgColor="lightSkyBlue", $fontColor="white")
+AddRelTag(aggregate_root, $lineColor="red")
+
+LAYOUT_TOP_DOWN()
+'LAYOUT_WITH_LEGEND()
+SHOW_PERSON_OUTLINE()
+'HIDE_STEREOTYPE()
+
+title Container Diagram for Event Planner System
+
+Person(participant,"Participant", "participant to an event")
+Person(customer, "Customer", "Customer of Event Planner")
+System_Boundary(eventplanner, "Event Planner System"){
+Container(webapp, "Web Application", "Javascript,react", "Delivers the static content and the car dealership single page application to the browser")
+Container(singlepage_app, "Single page application", "Javascript,react", "Provides the Car Dealership functionality to employees via their browser")
+Container(apigateway,"API-Gateway","Java, Spring Boot ", "provides car Dealership functionality via a JSON/REST HTTPS API")
+Container(event_service,"event-service","Java, Spring Boot ", "provides event functionality using the aggregator pattern", $tags = "microService")
+Container(venue_service,"venue-service","Java, Spring Boot ", "provides venue functionality via a JSON/REST HTTPS API", $tags = "microService")
+Container(participant_service,"participant-service","Java, Spring Boot ", "provides participant functionality via a JSON/REST HTTPS API", $tags = "microService")
+Container(customer_service,"customer-service","Java, Spring Boot ", "provides customer functionality via a JSON/REST HTTPS API", $tags = "microService")
+ContainerDb(customers_db, "Customers DB", "MySQL 5.5.x", "Stores customer information", $tags= "storage")
+ContainerDb(participant_db, "Participants DB", "MySQL 5.5.x", "Stores employee information", $tags= "storage")
+ContainerDb(venue_db, "Venues DB", "Postgres", "Stores inventory information", $tags= "storage")
+ContainerDb(event_db, "Events DB", "Mongo DB", "Stores purchases information", $tags= "storage")
+
+Rel(participant, webapp, "Visits eventplanner.com using", "HTTPS")
+Rel(customer, webapp, "Visits eventplanner.com using", "HTTPS")
+Rel_R(webapp, singlepage_app, "Delivers to the browser")
+Rel(customer, singlepage_app, "Makes and manages events", "HTTPS")
+Rel(participant, singlepage_app, "Views and buys tickets to events", "HTTPS")
+Rel(singlepage_app, apigateway, "Makes API calls to ", "JSON/REST/HTTPS")
+Rel(apigateway, customer_service, "Makes API calls to ", "JSON/REST/HTTPS")
+Rel(apigateway, venue_service, "Makes API calls to ", "JSON/REST/HTTPS")
+Rel(apigateway, participant_service, "Makes API calls to ", "JSON/REST/HTTPS")
+Rel(apigateway, event_service, "Makes API calls to ", "JSON/REST/HTTPS")
+Rel(event_service,customer_service, "Makes API calls to ", "JSON/REST/HTTPS", $tags="aggregate_root")
+Rel(event_service, venue_service, "Makes API calls to ", "JSON/REST/HTTPS", $tags="aggregate_root")
+Rel(event_service, participant_service, "Makes API calls to ", "JSON/REST/HTTPS",$tags="aggregate_root")
+Rel_D(customer_service, customers_db, "Reads from and writes to", "JDBC")
+Rel_D(venue_service, venue_db, "Reads from and writes to", "JDBC")
+Rel_D(participant_service, participant_db, "Reads from and writes to", "JDBC")
+Rel_D(event_service, event_db, "Reads from and writes to", "Mongo")
+}
+
+
+@enduml
