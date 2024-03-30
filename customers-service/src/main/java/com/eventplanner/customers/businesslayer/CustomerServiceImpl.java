@@ -9,6 +9,7 @@ import com.eventplanner.customers.datamapperlayer.CustomerRequestMapper;
 import com.eventplanner.customers.datamapperlayer.CustomerResponseMapper;
 import com.eventplanner.customers.presentationlayer.CustomerRequestModel;
 import com.eventplanner.customers.presentationlayer.CustomerResponseModel;
+import com.eventplanner.customers.utils.InvalidCustomerNameException;
 import com.eventplanner.customers.utils.NotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.crossstore.ChangeSetPersister;
@@ -52,6 +53,10 @@ public class CustomerServiceImpl implements CustomerService {
         Address address = new Address(customerRequestModel.getStreetAddress(), customerRequestModel.getCity(),
                 customerRequestModel.getProvince(), customerRequestModel.getCountry(), customerRequestModel.getPostalCode());
 
+        if (!isValidName(customerRequestModel.getFirstName()) || !isValidName(customerRequestModel.getLastName())) {
+            throw new InvalidCustomerNameException(customerRequestModel.getFirstName()+" "+customerRequestModel.getLastName());
+        }
+
         Customer customer = customerRequestMapper.requestModelToEntity(customerRequestModel, new CustomerIdentifier(), address);
 
         customer.setAddress(address);
@@ -67,6 +72,11 @@ public class CustomerServiceImpl implements CustomerService {
         if (existingCustomer == null) {
             throw new NotFoundException("Unknown customerId: " + customerId);
         }
+
+        if (!isValidName(customerRequestModel.getFirstName()) || !isValidName(customerRequestModel.getLastName())) {
+            throw new InvalidCustomerNameException(customerRequestModel.getFirstName()+" "+customerRequestModel.getLastName());
+        }
+
         Address address = new Address(customerRequestModel.getStreetAddress(), customerRequestModel.getCity(),
                 customerRequestModel.getProvince(), customerRequestModel.getCountry(), customerRequestModel.getPostalCode());
         Customer updatedCustomer = customerRequestMapper.requestModelToEntity(customerRequestModel,
@@ -86,5 +96,9 @@ public class CustomerServiceImpl implements CustomerService {
         }
 
         customerRepository.delete(existingCustomer);
+    }
+    private boolean isValidName(String name) {
+        String nameRegex = "^[a-zA-Z\\s'-]+$";
+        return name != null && !name.trim().isEmpty() && name.matches(nameRegex);
     }
 }

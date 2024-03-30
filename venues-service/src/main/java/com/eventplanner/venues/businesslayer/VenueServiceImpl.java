@@ -9,9 +9,11 @@ import com.eventplanner.venues.datamapperlayer.VenueResponseMapper;
 import com.eventplanner.venues.presentationlayer.VenueRequestModel;
 import com.eventplanner.venues.presentationlayer.VenueResponseModel;
 import com.eventplanner.venues.utils.NotFoundException;
+import com.eventplanner.venues.utils.PastAvailableDateException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -45,6 +47,13 @@ public class VenueServiceImpl implements VenueService {
 
     @Override
     public VenueResponseModel addVenue(VenueRequestModel venueRequestModel) {
+        List<LocalDate> availabledates = venueRequestModel.getAvailableDates();
+        LocalDate today = LocalDate.now();
+        for (LocalDate date : availabledates ){
+            if (date.isBefore(today)) {
+                throw new PastAvailableDateException(date);
+            }
+        }
         Venue venue = venueRequestMapper.venueRequestModelToEntity(venueRequestModel,new VenueIdentifier());
         return venueResponseMapper.entityToVenueResponseModel(venueRepository.save(venue));
     }
@@ -54,6 +63,13 @@ public class VenueServiceImpl implements VenueService {
         Venue existingVenue = venueRepository.findVenueByVenueIdentifier_VenueId(venueId);
         if(existingVenue == null){
             throw new NotFoundException("venueId does not exist "+venueId);
+        }
+        List<LocalDate> availabledates = venueRequestModel.getAvailableDates();
+        LocalDate today = LocalDate.now();
+        for (LocalDate date : availabledates ){
+            if (date.isBefore(today)) {
+                throw new PastAvailableDateException(date);
+            }
         }
         Venue updatedVenue = venueRequestMapper.venueRequestModelToEntity(venueRequestModel,new VenueIdentifier(venueId));
         updatedVenue.setId(existingVenue.getId());

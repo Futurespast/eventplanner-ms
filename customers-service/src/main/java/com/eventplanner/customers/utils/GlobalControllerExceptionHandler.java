@@ -27,7 +27,11 @@ public class GlobalControllerExceptionHandler {
         return createHttpErrorInfo(UNPROCESSABLE_ENTITY, request, ex);
     }
 
-
+    @ResponseStatus(UNPROCESSABLE_ENTITY)
+    @ExceptionHandler(InvalidCustomerNameException.class)
+    public HttpErrorInfo handleInvalidCustomerNameException(WebRequest request, Exception ex) {
+        return createHttpErrorInfo(HttpStatus.UNPROCESSABLE_ENTITY, request, ex);
+    }
 
     private HttpErrorInfo createHttpErrorInfo(HttpStatus httpStatus, WebRequest request, Exception ex) {
         final String path = request.getDescription(false);
