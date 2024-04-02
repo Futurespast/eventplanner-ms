@@ -2,6 +2,7 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.2.3'
 	id 'io.spring.dependency-management' version '1.1.4'
+	id 'jacoco'
 }
 
 group = 'com.eventplanner.participants'
@@ -22,6 +23,11 @@ ext {
 	lombokVersion = "1.18.26"
 	lombokMapstructBindingVersion = "0.2.0"
 }
+
+jacoco {
+	toolVersion = "0.8.11"
+}
+
 
 repositories {
 	mavenCentral()
@@ -44,6 +50,34 @@ dependencies {
 	testAnnotationProcessor "org.mapstruct:mapstruct-processor:${mapstructVersion}"
 }
 
-tasks.named('test') {
+jacocoTestReport {
+	dependsOn test
+	afterEvaluate {
+		classDirectories.setFrom(files(classDirectories.files.collect {
+			fileTree(dir: it, exclude: [
+//"com/movielister/**/MovieDetailsServiceApplication.class",
+// "**/*MapperImpl.class"
+			])
+		}))
+	}
+}
+
+jacocoTestCoverageVerification {
+	violationRules {
+		rule {
+			limit {
+				minimum = 0.00
+			}
+		}
+	}
+}
+
+test.finalizedBy jacocoTestReport
+check.dependsOn jacocoTestCoverageVerification
+
+test {
 	useJUnitPlatform()
+	testLogging {
+		events "passed", "skipped", "failed"
+	}
 }

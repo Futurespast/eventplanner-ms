@@ -75,8 +75,6 @@ public class ParticipantServiceImpl implements ParticipantService {
         participantRepository.delete(participant);
     }
     private boolean isValidEmail(String email) {
-        // Implement your email validation logic here
-        // This is a simple pattern match; you might need a more robust solution
         String emailRegex = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
         return email != null && email.matches(emailRegex);
     }

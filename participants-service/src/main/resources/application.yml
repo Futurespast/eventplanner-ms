@@ -24,7 +24,7 @@ spring:
       enabled: true
 
   datasource:
-    url: jdbc:h2:mem:participants-db;DB_CLOSE_DELAY=-1;NON_KEYWORDS=YEAR
+    url: jdbc:h2:mem:participants-db;DB_CLOSE_DELAY=-1;MODE=MySQL;NON_KEYWORDS=YEAR
     driver-class-name: org.h2.Driver
     username: sa
     password:
