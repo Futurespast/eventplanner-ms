@@ -1,5 +1,5 @@
 INSERT INTO customers (customer_id, first_name, last_name, email_address, street_address, city, province, country, postal_code)
-VALUES('c3540a89-cb47-4c96-888e-ff96708db4d8', 'John', 'Doe', 'john.doe@example.com', '123 Maple Street', 'Anytown', 'Ontario', 'Canada', 'A1B 2C3'),
+VALUES('c3540a89-cb47-4c96-888e-ff96708db4d8', 'John', 'Doe', 'johndoe@example.com', '123 Maple Street', 'Anytown', 'Ontario', 'Canada', 'A1B 2C3'),
       ('a1b2c3d4-e5f6-7g8h-9i0j-1k2l3m4n5o6p', 'Jane', 'Smith', 'jane.smith@example.com', '456 Oak Lane', 'Anytown', 'Ontario', 'Canada', 'A4B 5C6'),
       ('b2c3d4e5-f6g7-8h9i-0j1k-2l3m4n5o6p7q', 'Alice', 'Johnson', 'alice.johnson@example.com', '789 Pine Avenue', 'Anytown', 'Ontario', 'Canada', 'A7B 8C9'),
       ('c3d4e5f6-g7h8-9i0j-1k2l-3m4n5o6p7q8r', 'Bob', 'Brown', 'bob.brown@example.com', '101 Ash Street', 'Anytown', 'Ontario', 'Canada', 'A1A 1A1'),

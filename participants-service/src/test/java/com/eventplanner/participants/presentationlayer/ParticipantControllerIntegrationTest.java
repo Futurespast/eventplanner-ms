@@ -78,8 +78,7 @@ class ParticipantControllerIntegrationTest {
                 .jsonPath("$.firstName").isEqualTo(FOUND_PARTICIPANT_FIRST_NAME)
                 .jsonPath("$.lastName").isEqualTo(FOUND_PARTICIPANT_LAST_NAME)
                 .jsonPath("$.emailAddress").isEqualTo(FOUND_PARTICIPANT_EMAIL)
-                .jsonPath("$.specialNote").isEqualTo(FOUND_PARTICIPANT_SPECIALNOTE)
-        ;
+                .jsonPath("$.specialNote").isEqualTo(FOUND_PARTICIPANT_SPECIALNOTE);
     }
 
     @Test
@@ -174,7 +173,7 @@ class ParticipantControllerIntegrationTest {
                 .accept(MediaType.APPLICATION_JSON)
                 .bodyValue(participantRequestModel)
                 .exchange()
-                .expectStatus().isEqualTo(HttpStatus.UNPROCESSABLE_ENTITY) // Expecting 422 Unprocessable Entity
+                .expectStatus().isEqualTo(HttpStatus.UNPROCESSABLE_ENTITY)
                 .expectBody()
                 .jsonPath("$.httpStatus").isEqualTo("UNPROCESSABLE_ENTITY")
                 .jsonPath("$.message").isEqualTo("Invalid email address provided: invalid-email");

@@ -2,16 +2,13 @@ package com.eventplanner.customers.presentationlayer;
 
 
 import com.eventplanner.customers.dataacesslayer.PhoneNumber;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Value;
+import lombok.*;
 
 import java.util.List;
 
-@Value
+@Data
 @Builder
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@AllArgsConstructor
 public class CustomerRequestModel {
 
     String firstName;
