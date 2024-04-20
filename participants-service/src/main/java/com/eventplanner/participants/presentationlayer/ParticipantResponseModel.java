@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ParticipantResponseModel {
     private String participantId;
-    //private String eventId;
+   // private String eventId;
     private String firstName;
     private String lastName;
     private String emailAddress;

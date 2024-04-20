@@ -85,6 +85,7 @@ class ParticipantControllerIntegrationTest {
     public void WhenUpdateParticipantValid_thenReturnUpdatedParticipant() {
         // Arrange
         String participantId = "25a249e0-52c1-4911-91e2-b50fffef55e6";
+
         ParticipantRequestModel updateRequest = new ParticipantRequestModel("John", "Doe", "john.doe@example.com", "Updated note");
 
 
@@ -108,6 +109,7 @@ class ParticipantControllerIntegrationTest {
     public void updateParticipantDoesNotExist_ThrowNotFound() {
         // Arrange
         String nonExistentParticipantId = "112432dhxf-24";
+
         ParticipantRequestModel updateRequest = new ParticipantRequestModel("Jane", "Smith", "jane.smith@example.com", "No allergies");
 
 
@@ -146,6 +148,7 @@ class ParticipantControllerIntegrationTest {
         public void whenValidParticipant_thenCreateParticipant() {
             //arrange
             long sizeDB = participantRepository.count();
+
             ParticipantRequestModel participantRequestModel = new ParticipantRequestModel("Mac", "Miller", "email@email.com", "none");
 
             webTestClient.post().uri(BASE_URI_PARTICIPANTS).contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
@@ -165,6 +168,7 @@ class ParticipantControllerIntegrationTest {
     public void whenValidParticipantButInvalidEmail_thenUnprocessableEntity() {
         // Arrange
         long sizeDB = participantRepository.count();
+
         ParticipantRequestModel participantRequestModel = new ParticipantRequestModel("Mac", "Miller", "invalid-email", "none");
 
         // Act & Assert

@@ -19,10 +19,10 @@ public class Participant {
     @Embedded
     private ParticipantIdentifier participantIdentifier;
 
-  /*  @Embedded
-    private EventIdentifier eventIdentifier;
+    //@Embedded
+   // private EventIdentifier eventIdentifier;
 
-   */
+
 
     private String firstName;
     private String lastName;
