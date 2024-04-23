@@ -28,22 +28,22 @@ public class ParticipantsServiceClient {
 
     private final String PARTICIPANTS_SERVICE_BASE_URL;
 
-    private ParticipantsServiceClient(RestTemplate restTemplate, ObjectMapper objectMapper, @Value("${app.customers-service.host}") String customerServiceHost,
-                                      @Value("${app.customers-service.port}") String customersServicePort)
+    private ParticipantsServiceClient(RestTemplate restTemplate, ObjectMapper objectMapper, @Value("${app.participants-service.host}") String participantsServiceHost,
+                                      @Value("${app.participants-service.port}") String participantsServicePort)
     {
         this.restTemplate = restTemplate;
         this.mapper = objectMapper;
 
-        PARTICIPANTS_SERVICE_BASE_URL = "http://" + customerServiceHost + ":" + customersServicePort + "/api/v1/customers";
+        PARTICIPANTS_SERVICE_BASE_URL = "http://" + participantsServiceHost + ":" + participantsServicePort + "/api/v1/participants";
 
     }
 
-    public List<ParticipantModel> getParticipants(){
+    public ParticipantModel getParticipantById(String participantId){
         try{
-            String url = PARTICIPANTS_SERVICE_BASE_URL;
+            String url = PARTICIPANTS_SERVICE_BASE_URL+"/"+participantId;
 
-            ParticipantModel[] participantModel = restTemplate.getForObject(url, ParticipantModel[].class);
-            return Arrays.asList(participantModel);
+            ParticipantModel participantModel = restTemplate.getForObject(url, ParticipantModel.class);
+            return participantModel;
         } catch (HttpClientErrorException ex){
             throw handleHttpClientException(ex);
         }

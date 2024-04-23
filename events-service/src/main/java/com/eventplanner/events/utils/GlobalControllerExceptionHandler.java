@@ -27,6 +27,11 @@ public class GlobalControllerExceptionHandler {
         return createHttpErrorInfo(UNPROCESSABLE_ENTITY, request, ex);
     }
 
+    @ResponseStatus(UNPROCESSABLE_ENTITY)
+    @ExceptionHandler(InvalidEventDateException.class)
+    public HttpErrorInfo handleInvalidEventDateException(WebRequest request, Exception ex){
+        return createHttpErrorInfo(UNPROCESSABLE_ENTITY, request, ex);
+    }
 
 
     private HttpErrorInfo createHttpErrorInfo(HttpStatus httpStatus, WebRequest request, Exception ex) {

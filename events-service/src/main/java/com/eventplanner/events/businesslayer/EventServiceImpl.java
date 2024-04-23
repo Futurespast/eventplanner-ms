@@ -1,23 +1,22 @@
 package com.eventplanner.events.businesslayer;
 
-import com.example.eventplanningws.Common.CustomerIdentifier;
-import com.example.eventplanningws.Common.ParticipantIdentifier;
-import com.example.eventplanningws.Common.VenueIdentifier;
-import com.example.eventplanningws.CustomerSubDomain.DataLayer.Customer;
-import com.example.eventplanningws.CustomerSubDomain.DataLayer.CustomerRepository;
-import com.example.eventplanningws.EventSubDomain.DataLayer.Event;
-import com.example.eventplanningws.EventSubDomain.DataLayer.EventIdentifier;
-import com.example.eventplanningws.EventSubDomain.DataLayer.EventRepository;
-import com.example.eventplanningws.EventSubDomain.DataMapperLayer.EventRequestMapper;
-import com.example.eventplanningws.EventSubDomain.DataMapperLayer.EventResponseMapper;
-import com.example.eventplanningws.EventSubDomain.PresentationLayer.EventRequestModel;
-import com.example.eventplanningws.EventSubDomain.PresentationLayer.EventResponseModel;
-import com.example.eventplanningws.ParticipantSubDomain.DataLayer.Participant;
-import com.example.eventplanningws.ParticipantSubDomain.DataLayer.ParticipantRepository;
-import com.example.eventplanningws.VenueSubDomain.DataLayer.Venue;
-import com.example.eventplanningws.VenueSubDomain.DataLayer.VenueRepository;
-import com.example.eventplanningws.utils.InvalidInputException;
-import com.example.eventplanningws.utils.NotFoundException;
+
+import com.eventplanner.events.dataacesslayer.Event;
+import com.eventplanner.events.dataacesslayer.EventIdentifier;
+import com.eventplanner.events.dataacesslayer.EventRepository;
+import com.eventplanner.events.datamapperlayer.EventRequestMapper;
+import com.eventplanner.events.datamapperlayer.EventResponseMapper;
+import com.eventplanner.events.domainclientlayer.Customer.CustomerModel;
+import com.eventplanner.events.domainclientlayer.Customer.CustomersServiceClient;
+import com.eventplanner.events.domainclientlayer.Participant.ParticipantModel;
+import com.eventplanner.events.domainclientlayer.Participant.ParticipantsServiceClient;
+import com.eventplanner.events.domainclientlayer.Venue.VenueModel;
+import com.eventplanner.events.domainclientlayer.Venue.VenuesServiceClient;
+import com.eventplanner.events.presentationlayer.EventRequestModel;
+import com.eventplanner.events.presentationlayer.EventResponseModel;
+import com.eventplanner.events.utils.InvalidEventDateException;
+import com.eventplanner.events.utils.InvalidInputException;
+import com.eventplanner.events.utils.NotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -26,143 +25,128 @@ import java.util.List;
 @Service
 public class EventServiceImpl implements EventService{
     private final EventRepository eventRepository;
-    private final CustomerRepository customerRepository;
-    private final VenueRepository venueRepository;
-    private final ParticipantRepository participantRepository;
+
+    private final CustomersServiceClient customersServiceClient;
+
+    private final VenuesServiceClient venuesServiceClient;
+
+    private final ParticipantsServiceClient participantsServiceClient;
+
     private final EventResponseMapper eventResponseMapper;
     private final EventRequestMapper eventRequestMapper;
 
-    public EventServiceImpl(EventRepository eventRepository, CustomerRepository customerRepository, VenueRepository venueRepository, ParticipantRepository participantRepository, EventResponseMapper eventResponseMapper, EventRequestMapper eventRequestMapper) {
+    public EventServiceImpl(EventRepository eventRepository, CustomersServiceClient customersServiceClient, VenuesServiceClient venuesServiceClient, ParticipantsServiceClient participantsServiceClient, EventResponseMapper eventResponseMapper, EventRequestMapper eventRequestMapper) {
         this.eventRepository = eventRepository;
-        this.customerRepository = customerRepository;
-        this.venueRepository = venueRepository;
-        this.participantRepository = participantRepository;
+        this.customersServiceClient = customersServiceClient;
+        this.venuesServiceClient = venuesServiceClient;
+        this.participantsServiceClient = participantsServiceClient;
         this.eventResponseMapper = eventResponseMapper;
         this.eventRequestMapper = eventRequestMapper;
     }
 
-    @Override
-    public List<EventResponseModel> getEvents() {
-        List<EventResponseModel> eventResponseModelList = new ArrayList<>();
-        List<Event> events = eventRepository.findAll();
-        events.forEach(event -> {
-            Customer customer = customerRepository.findByCustomerIdentifier_CustomerId(event.getCustomerIdentifier().getCustomerId());
-            if(customer == null){
-                throw new InvalidInputException("Customerid provided is invalid"+ event.getCustomerIdentifier().getCustomerId());
-            }
-            Venue venue = venueRepository.findVenueByVenueIdentifier_VenueId(event.getVenueIdentifier().getVenueId());
-            if(venue == null){
-                throw new InvalidInputException("venueId provided is invalid"+ event.getVenueIdentifier().getVenueId());
-            }
-            EventResponseModel eventResponseModel = eventResponseMapper.entityToEventResponseModel(event,customer,venue);
-            List<Participant> participants = participantRepository.findAllByEventIdentifier_EventId(event.getEventIdentifier().getEventId());
-            List<String> participantsId = new ArrayList<>();
-            participants.forEach(participant -> {
-                participantsId.add(participant.getParticipantIdentifier().getParticipantId());
-            });
-            eventResponseModel.setParticipantsId(participantsId);
-            eventResponseModelList.add(eventResponseModel);
-        });
-
-        return eventResponseModelList;
-    }
 
     @Override
-    public EventResponseModel getEventById(String eventId) {
-       Event event = eventRepository.getEventByEventIdentifier_EventId(eventId);
-       if(event == null){
-           throw  new NotFoundException("eventId provided doesn't exist"+eventId);
-       }
-       Customer customer = customerRepository.findByCustomerIdentifier_CustomerId(event.getCustomerIdentifier().getCustomerId());
+    public List<EventResponseModel> getEvents(String customerId) {
+        CustomerModel customer =customersServiceClient.getCustomerByCustomerId(customerId);
         if(customer == null){
-            throw new InvalidInputException("Customerid provided is invalid"+ event.getCustomerIdentifier().getCustomerId());
+            throw new InvalidInputException("Customerid provided is invalid"+ customerId);
         }
-       Venue venue = venueRepository.findVenueByVenueIdentifier_VenueId(event.getVenueIdentifier().getVenueId());
-        if(venue == null){
-            throw new InvalidInputException("venueId provided is invalid"+ event.getVenueIdentifier().getVenueId());
-        }
-       EventResponseModel eventResponseModel = eventResponseMapper.entityToEventResponseModel(event,customer,venue);
-        List<Participant> participants = participantRepository.findAllByEventIdentifier_EventId(event.getEventIdentifier().getEventId());
-        List<String> participantsId = new ArrayList<>();
-        participants.forEach(participant -> {
-            participantsId.add(participant.getParticipantIdentifier().getParticipantId());
-        });
-        eventResponseModel.setParticipantsId(participantsId);
-        return eventResponseModel;
+
+        List<Event> events = eventRepository.getAllByCustomerModel_CustomerId(customerId);
+
+       return eventResponseMapper.entityToEventResponseList(events);
     }
 
     @Override
-    public EventResponseModel addEvent(EventRequestModel eventRequestModel) {
-       Event event = eventRequestMapper.eventRequestModelToEntity(eventRequestModel,new EventIdentifier(), new VenueIdentifier(eventRequestModel.getVenueId()), new CustomerIdentifier(eventRequestModel.getCustomerId()));
-        Customer customer = customerRepository.findByCustomerIdentifier_CustomerId(event.getCustomerIdentifier().getCustomerId());
+    public EventResponseModel getEventById(String customerId, String eventId) {
+        CustomerModel customer =customersServiceClient.getCustomerByCustomerId(customerId);
         if(customer == null){
-            throw new InvalidInputException("Customerid provided is invalid"+ event.getCustomerIdentifier().getCustomerId());
-        }
-        Venue venue = venueRepository.findVenueByVenueIdentifier_VenueId(event.getVenueIdentifier().getVenueId());
-        if(venue == null){
-            throw new InvalidInputException("venueId provided is invalid"+ event.getVenueIdentifier().getVenueId());
-        }
-        List<LocalDate> dates = venue.getAvailableDates();
-        if(!dates.contains(event.getEventDate().getStartDate()) || !dates.contains(event.getEventDate().getEndDate())){
-            throw new InvalidInputException("Venue is not available for the event's date");
-        }
-        List<ParticipantIdentifier> participantsId = new ArrayList<>();
-        event.setParticipantIdentifiers(participantsId);
-        Event savedEvent = eventRepository.save(event);
-        EventResponseModel eventResponseModel = eventResponseMapper.entityToEventResponseModel(savedEvent, customer, venue);
-        List<String>participants = new ArrayList<>();
-        eventResponseModel.setParticipantsId(participants);
-        return eventResponseModel;
-    }
-
-    @Override
-    public EventResponseModel updateEvent(EventRequestModel eventRequestModel, String eventId) {
-        Event oldEvent = eventRepository.getEventByEventIdentifier_EventId(eventId);
-        if(oldEvent == null){
-            throw  new NotFoundException("eventId provided doesn't exist"+eventId);
-        }
-        Customer customer = customerRepository.findByCustomerIdentifier_CustomerId(oldEvent.getCustomerIdentifier().getCustomerId());
-        if(customer == null){
-            throw new InvalidInputException("Customerid provided is invalid"+ oldEvent.getCustomerIdentifier().getCustomerId());
-        }
-        Venue venue = venueRepository.findVenueByVenueIdentifier_VenueId(oldEvent.getVenueIdentifier().getVenueId());
-        if(venue == null){
-            throw new InvalidInputException("venueId provided is invalid"+ oldEvent.getVenueIdentifier().getVenueId());
-        }
-        Event updatedEvent = eventRequestMapper.eventRequestModelToEntity(eventRequestModel, new EventIdentifier(eventId), new VenueIdentifier(eventRequestModel.getVenueId()), new CustomerIdentifier(eventRequestModel.getCustomerId()));
-        List<LocalDate> dates = venue.getAvailableDates();
-
-        if(!dates.contains(updatedEvent.getEventDate().getStartDate()) || !dates.contains(updatedEvent.getEventDate().getEndDate())){
-            throw new InvalidInputException("Venue is not available for the event's date");
+            throw new InvalidInputException("Customerid provided is invalid"+ customerId);
         }
 
-        List<Participant> participants = participantRepository.findAllByEventIdentifier_EventId(eventId);
-        List<ParticipantIdentifier> participantsIdentifier = new ArrayList<>();
-        participants.forEach(participant -> {
-            participantsIdentifier.add(participant.getParticipantIdentifier());
-        });
-        updatedEvent.setParticipantIdentifiers(participantsIdentifier);
-        updatedEvent.setId(oldEvent.getId());
-        Event savedEvent = eventRepository.save(updatedEvent);
-        EventResponseModel eventResponseModel = eventResponseMapper.entityToEventResponseModel(savedEvent, customer, venue);
-        List<String> participantsId = new ArrayList<>();
-        participants.forEach(participant -> {
-            participantsId.add(participant.getParticipantIdentifier().getParticipantId());
-        });
-        eventResponseModel.setParticipantsId(participantsId);
-        return eventResponseModel;
-    }
-
-    @Override
-    public void deleteEvent(String eventId) {
-        Event event = eventRepository.getEventByEventIdentifier_EventId(eventId);
+        Event event = eventRepository.getEventByCustomerModel_CustomerIdAndEventIdentifier_EventId(customerId,eventId);
         if(event == null){
-            throw  new NotFoundException("eventId provided doesn't exist"+eventId);
+            throw new InvalidInputException("eventId provided is invalid"+ customerId);
         }
-        List<Participant> participants = participantRepository.findAllByEventIdentifier_EventId(eventId);
-        participants.forEach(participant -> {
-            participantRepository.delete(participant);
-        });
+        return eventResponseMapper.entityToEventResponseModel(event);
+    }
+
+    @Override
+    public EventResponseModel addEvent(String customerId, EventRequestModel eventRequestModel) {
+        CustomerModel customer =customersServiceClient.getCustomerByCustomerId(customerId);
+        if(customer == null){
+            throw new InvalidInputException("Customerid provided is invalid"+ customerId);
+        }
+        VenueModel venueModel = venuesServiceClient.getVenueByVenueId(eventRequestModel.getVenueId());
+        if(venueModel == null){
+            throw new InvalidInputException("venue id provided is "+ eventRequestModel.getVenueId());
+        }
+        if(!venueModel.getAvailableDates().contains(eventRequestModel.getEventDate().getStartDate())||!venueModel.getAvailableDates().contains(eventRequestModel.getEventDate().getEndDate())){
+            throw new InvalidEventDateException("Event date is not available with the venue");
+        }
+        venuesServiceClient.updateVenueDates(venueModel.getVenueId(), eventRequestModel.getEventDate().getStartDate(),eventRequestModel.getEventDate().getEndDate());
+        List<ParticipantModel> participantModels = new ArrayList<>();
+        List<String> participantIds = eventRequestModel.getParticipantIds();
+        if (participantIds != null) {
+            for (String id : participantIds) {
+                ParticipantModel participant = participantsServiceClient.getParticipantById(id);
+                if (participant == null) {
+                    throw new InvalidInputException("Participant ID provided is invalid: " + id);
+                }
+                participantModels.add(participant);
+            }
+        }
+
+       Event event = eventRequestMapper.eventRequestModelToEntity(eventRequestModel,new EventIdentifier(),venueModel,customer);
+        event.setParticipantModels(participantModels);
+        Event saved =eventRepository.save(event);
+        return eventResponseMapper.entityToEventResponseModel(saved);
+    }
+
+    @Override
+    public EventResponseModel updateEvent(String customerId, String eventId, EventRequestModel eventRequestModel) {
+        CustomerModel customer =customersServiceClient.getCustomerByCustomerId(customerId);
+        if(customer == null){
+            throw new InvalidInputException("Customerid provided is invalid"+ customerId);
+        }
+        VenueModel venueModel = venuesServiceClient.getVenueByVenueId(eventRequestModel.getVenueId());
+        if(venueModel == null){
+            throw new InvalidInputException("venue id provided is "+ eventRequestModel.getVenueId());
+        }
+        if(!venueModel.getAvailableDates().contains(eventRequestModel.getEventDate().getStartDate())||!venueModel.getAvailableDates().contains(eventRequestModel.getEventDate().getEndDate())){
+            throw new InvalidEventDateException("Event date is not available with the venue");
+        }
+        List<ParticipantModel> participantModels = new ArrayList<>();
+        List<String> participantIds = eventRequestModel.getParticipantIds();
+        if (participantIds != null) {
+            for (String id : participantIds) {
+                ParticipantModel participant = participantsServiceClient.getParticipantById(id);
+                if (participant == null) {
+                    throw new InvalidInputException("Participant ID provided is invalid: " + id);
+                }
+                participantModels.add(participant);
+            }
+        }
+        Event foundEvent = eventRepository.getEventByCustomerModel_CustomerIdAndEventIdentifier_EventId(customerId,eventId);
+        if(foundEvent == null){
+            throw new InvalidInputException("eventId provided is invalid"+ customerId);
+        }
+        Event event = eventRequestMapper.eventRequestModelToEntity(eventRequestModel, foundEvent.getEventIdentifier(),venueModel,customer);
+        event.setParticipantModels(participantModels);
+        Event save = eventRepository.save(event);
+        return eventResponseMapper.entityToEventResponseModel(save);
+    }
+
+    @Override
+    public void deleteEvent(String customerId, String eventId) {
+        CustomerModel customer =customersServiceClient.getCustomerByCustomerId(customerId);
+        if(customer == null){
+            throw new InvalidInputException("Customerid provided is invalid"+ customerId);
+        }
+        Event event = eventRepository.getEventByCustomerModel_CustomerIdAndEventIdentifier_EventId(customerId,eventId);
+        if(event == null){
+            throw new InvalidInputException("eventId provided is invalid"+ customerId);
+        }
         eventRepository.delete(event);
     }
 }

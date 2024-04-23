@@ -23,29 +23,13 @@ import java.util.List;
 public class Event {
     @Id
     private String id;
-
     @Indexed(unique = true)
     private EventIdentifier eventIdentifier;
-
-
     private CustomerModel customerModel;
-
-
     private VenueModel venueModel;
-
-
     private List<ParticipantModel> participantModels;
-
-
     private EventDate eventDate;
-
-    private String name;
-
+    private String eventName;
     private String description;
-
-
     private EventStatus eventStatus;
-
-
-
 }

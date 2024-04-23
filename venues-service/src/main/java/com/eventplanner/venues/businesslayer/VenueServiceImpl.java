@@ -78,6 +78,39 @@ public class VenueServiceImpl implements VenueService {
     }
 
     @Override
+    public VenueResponseModel changeVenueDates(String venueId, LocalDate start, LocalDate end) {
+        Venue existingVenue = venueRepository.findVenueByVenueIdentifier_VenueId(venueId);
+        if(existingVenue == null){
+            throw new NotFoundException("venueId does not exist "+venueId);
+        }
+        List<LocalDate> dates = existingVenue.getAvailableDates();
+        if(start.isEqual(end)){
+            for (LocalDate date:dates
+                 ) {
+                if(date.isEqual(start)){
+                    dates.remove(date);
+                }
+            }
+            existingVenue.setAvailableDates(dates);
+            return venueResponseMapper.entityToVenueResponseModel(venueRepository.save(existingVenue));
+        }
+        for (LocalDate date:dates
+        ) {
+            if(date.isEqual(start)){
+                dates.remove(date);
+            }
+        }
+        for (LocalDate date:dates
+        ) {
+            if(date.isEqual(end)){
+                dates.remove(date);
+            }
+        }
+        existingVenue.setAvailableDates(dates);
+        return venueResponseMapper.entityToVenueResponseModel(venueRepository.save(existingVenue));
+    }
+
+    @Override
     public void deleteVenue(String venueId) {
         Venue venue = venueRepository.findVenueByVenueIdentifier_VenueId(venueId);
         if(venue == null){

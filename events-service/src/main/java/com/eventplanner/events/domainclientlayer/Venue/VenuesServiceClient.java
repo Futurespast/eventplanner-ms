@@ -7,11 +7,16 @@ import com.eventplanner.events.utils.NotFoundException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
+import java.time.LocalDate;
+import java.util.UUID;
 
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY;
@@ -40,6 +45,17 @@ public class VenuesServiceClient {
             VenueModel venueModel = restTemplate.getForObject(url, VenueModel.class);
             return venueModel;
         } catch (HttpClientErrorException ex){
+            throw handleHttpClientException(ex);
+        }
+    }
+
+    public VenueModel updateVenueDates(String venueId, LocalDate start, LocalDate end) {
+        String url = VENUES_SERVICE_BASE_URL + "/" + venueId +"/"+ start + "/" + end;
+        HttpEntity<String> requestEntity = new HttpEntity<>(null); //
+        try {
+            ResponseEntity<VenueModel> response = restTemplate.exchange(url, HttpMethod.PATCH, requestEntity, VenueModel.class);
+            return response.getBody();
+        } catch (HttpClientErrorException ex) {
             throw handleHttpClientException(ex);
         }
     }

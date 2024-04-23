@@ -14,7 +14,11 @@ public class EventsServiceApplication {
 	@Bean
 	RestTemplate restTemplate()
 	{
-		return new RestTemplate();
+		RestTemplate restTemplate = new RestTemplate();
+		HttpClient httpClient = HttpClientBuilder.create().build();
+		HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory(httpClient);
+		restTemplate.setRequestFactory(requestFactory);
+		return restTemplate;
 	}
 	public static void main(String[] args) {
 		SpringApplication.run(EventsServiceApplication.class, args);

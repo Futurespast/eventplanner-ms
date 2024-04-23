@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -13,6 +15,7 @@ public class EventRequestModel {
     private String customerId;
     private EventDate eventDate;
     private String eventStatus;
-    private String name;
+    private String eventName;
     private String description;
+    private List<String> participantIds;
 }

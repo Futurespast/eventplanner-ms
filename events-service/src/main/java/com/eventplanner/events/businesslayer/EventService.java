@@ -1,14 +1,15 @@
 package com.eventplanner.events.businesslayer;
 
-import com.example.eventplanningws.EventSubDomain.PresentationLayer.EventRequestModel;
-import com.example.eventplanningws.EventSubDomain.PresentationLayer.EventResponseModel;
+import com.eventplanner.events.presentationlayer.EventRequestModel;
+import com.eventplanner.events.presentationlayer.EventResponseModel;
+
 
 import java.util.List;
 
 public interface EventService {
-    List<EventResponseModel> getEvents();
-    EventResponseModel getEventById(String eventId);
-    EventResponseModel addEvent(EventRequestModel eventRequestModel);
-    EventResponseModel updateEvent(EventRequestModel eventRequestModel, String eventId);
-    void deleteEvent(String eventId);
+    List<EventResponseModel> getEvents(String customerId);
+    EventResponseModel getEventById(String customerId,String eventId);
+    EventResponseModel addEvent(String customerId,EventRequestModel eventRequestModel);
+    EventResponseModel updateEvent(String customerId, String eventId, EventRequestModel eventRequestModel);
+    void deleteEvent(String customerId,String eventId);
 }
