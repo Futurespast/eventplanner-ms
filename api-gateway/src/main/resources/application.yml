@@ -1,0 +1,60 @@
+# Default Spring Profile
+server:
+  error:
+    include-message: always
+
+logging:
+  level:
+    root: INFO
+    com.eventplanner: DEBUG
+    org.springframework.data.mongodb.core.MongoTemplate: DEBUG
+
+---
+# for test
+
+spring:
+  config:
+    activate:
+      on-profile: test
+
+
+app:
+  customers-service:
+    host: localhost
+    port: 7001
+  venues-service:
+    host: localhost
+    port: 7002
+  participants-service:
+    host: localhost
+    port: 7003
+  events-service:
+    host: localhost
+    port: 7004
+---
+
+# for docker
+
+spring:
+  config:
+    activate:
+      on-profile: docker
+
+
+server.port: 8080
+
+#spring.datasource.hikari.initializationFailTimeout: 60000
+
+app:
+  customers-service:
+    host: customers-service
+    port: 8080
+  participants-service:
+    host: participants-service
+    port: 8080
+  venues-service:
+    host: venues-service
+    port: 8080
+  events-service:
+    host: localhost
+    port: 8080

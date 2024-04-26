@@ -12,8 +12,8 @@ import java.util.List;
 
 public class ParticipantModel {
      String participantId;
-     private String firstName;
-     private String lastName;
-     private String emailAddress;
-     private String specialNote;
+     String firstName;
+     String lastName;
+     String emailAddress;
+     String specialNote;
 }

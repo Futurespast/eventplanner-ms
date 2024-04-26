@@ -7,9 +7,7 @@ import com.eventplanner.events.utils.NotFoundException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
@@ -51,7 +49,10 @@ public class VenuesServiceClient {
 
     public VenueModel updateVenueDates(String venueId, LocalDate start, LocalDate end) {
         String url = VENUES_SERVICE_BASE_URL + "/" + venueId +"/"+ start + "/" + end;
-        HttpEntity<String> requestEntity = new HttpEntity<>(null); //
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<String> requestEntity = new HttpEntity<>(null, headers);
         try {
             ResponseEntity<VenueModel> response = restTemplate.exchange(url, HttpMethod.PATCH, requestEntity, VenueModel.class);
             return response.getBody();

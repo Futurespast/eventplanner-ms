@@ -1,6 +1,5 @@
-package com.eventplanner.events.utils;
+package com.eventplanner.apigateway.utils;
 
-import com.eventplanner.events.dataacesslayer.*;
 import com.eventplanner.events.domainclientlayer.Customer.CustomerModel;
 import com.eventplanner.events.domainclientlayer.Participant.ParticipantModel;
 import com.eventplanner.events.domainclientlayer.Venue.VenueModel;

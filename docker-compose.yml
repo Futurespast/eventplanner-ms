@@ -1,10 +1,23 @@
 services:
+  api-gateway:
+    build: api-gateway
+    hostname: api-gateway
+    container_name: api-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    depends_on:
+      - customers-service
+      - participants-service
+      - venues-service
+      - events-service
   customers-service:
     build: customers-service
     hostname: customers-service
     container_name: customers-service
-    ports:
-      - "8080:8080"
+   # ports:
+   #   - "8080:8080"
     environment:
       - SPRING_PROFILES_ACTIVE=docker
     depends_on:
@@ -14,8 +27,8 @@ services:
     build: participants-service
     hostname: participants-service
     container_name: participants-service
-    ports:
-      - "8081:8080"
+  #  ports:
+    #  - "8081:8080"
     environment:
       - SPRING_PROFILES_ACTIVE=docker
     depends_on:
@@ -24,7 +37,7 @@ services:
   mysql2:
     image: mysql:5.7
     ports:
-      - "3308:3306"
+    - "3308:3306"
     environment:
       - MYSQL_ROOT_PASSWORD=rootpwd
       - MYSQL_DATABASE=participants-db
@@ -99,8 +112,8 @@ services:
     build: venues-service
     hostname: venues-service
     container_name: venues-service
-    ports:
-      - "8082:8080"
+   # ports:
+    #  - "8082:8080"
     environment:
       - SPRING_PROFILES_ACTIVE=docker
     depends_on:
@@ -138,8 +151,8 @@ services:
     build: events-service
     hostname: events-service
     container_name: events-service
-    ports:
-      - "8083:8080"
+   # ports:
+    #  - "8083:8080"
     environment:
       - SPRING_PROFILES_ACTIVE=docker
     depends_on:
