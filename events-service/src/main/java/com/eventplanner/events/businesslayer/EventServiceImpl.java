@@ -66,7 +66,7 @@ public class EventServiceImpl implements EventService{
 
         Event event = eventRepository.getEventByCustomerModel_CustomerIdAndEventIdentifier_EventId(customerId,eventId);
         if(event == null){
-            throw new InvalidInputException("eventId provided is invalid"+ customerId);
+            throw new InvalidInputException("eventId provided is invalid "+ eventId);
         }
         return eventResponseMapper.entityToEventResponseModel(event);
     }
@@ -75,7 +75,7 @@ public class EventServiceImpl implements EventService{
     public EventResponseModel addEvent(String customerId, EventRequestModel eventRequestModel) {
         CustomerModel customer =customersServiceClient.getCustomerByCustomerId(customerId);
         if(customer == null){
-            throw new InvalidInputException("Customerid provided is invalid"+ customerId);
+            throw new InvalidInputException("Customerid provided is invalid "+ customerId);
         }
         VenueModel venueModel = venuesServiceClient.getVenueByVenueId(eventRequestModel.getVenueId());
         if(venueModel == null){
@@ -107,7 +107,7 @@ public class EventServiceImpl implements EventService{
     public EventResponseModel updateEvent(String customerId, String eventId, EventRequestModel eventRequestModel) {
         CustomerModel customer =customersServiceClient.getCustomerByCustomerId(customerId);
         if(customer == null){
-            throw new InvalidInputException("Customerid provided is invalid"+ customerId);
+            throw new InvalidInputException("Customerid provided is invalid "+ customerId);
         }
         VenueModel venueModel = venuesServiceClient.getVenueByVenueId(eventRequestModel.getVenueId());
         if(venueModel == null){
@@ -129,7 +129,7 @@ public class EventServiceImpl implements EventService{
         }
         Event foundEvent = eventRepository.getEventByCustomerModel_CustomerIdAndEventIdentifier_EventId(customerId,eventId);
         if(foundEvent == null){
-            throw new InvalidInputException("eventId provided is invalid"+ customerId);
+            throw new InvalidInputException("eventId provided is invalid "+ eventId);
         }
         Event event = eventRequestMapper.eventRequestModelToEntity(eventRequestModel, foundEvent.getEventIdentifier(),venueModel,customer);
         event.setParticipantModels(participantModels);
@@ -141,11 +141,11 @@ public class EventServiceImpl implements EventService{
     public void deleteEvent(String customerId, String eventId) {
         CustomerModel customer =customersServiceClient.getCustomerByCustomerId(customerId);
         if(customer == null){
-            throw new InvalidInputException("Customerid provided is invalid"+ customerId);
+            throw new InvalidInputException("Customerid provided is invalid "+ customerId);
         }
         Event event = eventRepository.getEventByCustomerModel_CustomerIdAndEventIdentifier_EventId(customerId,eventId);
         if(event == null){
-            throw new InvalidInputException("eventId provided is invalid"+ customerId);
+            throw new InvalidInputException("eventId provided is invalid "+ eventId);
         }
         eventRepository.delete(event);
     }

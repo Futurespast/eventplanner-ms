@@ -1,13 +1,11 @@
-package com.eventplanner.events.domainclientlayer.Participant;
+package com.eventplanner.apigateway.domainclientlayer.events;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import lombok.*;
+import lombok.Builder;
+import lombok.Data;
 
-import java.util.List;
-@Builder(toBuilder = true)
+@Builder
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 
 public class ParticipantModel {
