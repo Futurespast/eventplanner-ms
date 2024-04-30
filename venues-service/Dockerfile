@@ -12,5 +12,5 @@ COPY --from=builder /usr/src/app/${JAR_FILE} app.jar
 #RUN apt-get update; apt-get -y install curl
 #RUN microdnf update \
 #   && microdnf install curl \
-#    && microdnf install jq
+RUN microdnf install jq
 ENTRYPOINT ["java", "-jar", "/app.jar"]

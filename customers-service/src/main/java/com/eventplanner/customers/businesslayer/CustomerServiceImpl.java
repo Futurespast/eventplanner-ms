@@ -68,7 +68,6 @@ public class CustomerServiceImpl implements CustomerService {
 
         Customer existingCustomer = customerRepository.findByCustomerIdentifier_CustomerId(customerId);
 
-
         if (existingCustomer == null) {
             throw new NotFoundException("Unknown customerId: " + customerId);
         }

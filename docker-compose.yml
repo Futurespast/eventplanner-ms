@@ -16,8 +16,8 @@ services:
     build: customers-service
     hostname: customers-service
     container_name: customers-service
- #   ports:
-  #    - "8081:8080"
+   # ports:
+    # - "8081:8080"
     environment:
       - SPRING_PROFILES_ACTIVE=docker
     depends_on:
@@ -152,7 +152,7 @@ services:
     hostname: events-service
     container_name: events-service
    # ports:
-    #  - "8083:8080"
+   #   - "8083:8080"
     environment:
       - SPRING_PROFILES_ACTIVE=docker
     depends_on:
@@ -182,6 +182,7 @@ services:
       - ME_CONFIG_MONGODB_SERVER=mongo_db
       - ME_CONFIG_MONGODB_ADMINUSERNAME=user
       - ME_CONFIG_MONGODB_ADMINPASSWORD=pwd
+      - ME_CONFIG_MONGODB_URL=mongodb://admin:pass@mongodb:27017
 
 
 volumes:

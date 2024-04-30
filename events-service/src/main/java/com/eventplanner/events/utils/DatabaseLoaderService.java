@@ -42,7 +42,7 @@ public class DatabaseLoaderService implements CommandLineRunner {
                 .firstName("John")
                 .lastName("Doe")
                 .build();
-        EventIdentifier eventIdentifier = new EventIdentifier("499075b0-7761-4684-9bbc-16b9a0079837");
+        EventIdentifier eventIdentifier = new EventIdentifier();
         EventDate eventDate = new EventDate(date,date);
         Event event = Event.builder()
                 .eventIdentifier(eventIdentifier)

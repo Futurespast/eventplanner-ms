@@ -56,5 +56,5 @@ app:
     host: venues-service
     port: 8080
   events-service:
-    host: localhost
+    host: events-service
     port: 8080

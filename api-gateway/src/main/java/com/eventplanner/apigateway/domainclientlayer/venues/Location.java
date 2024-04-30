@@ -1,11 +1,11 @@
 package com.eventplanner.apigateway.domainclientlayer.venues;
 
-import jakarta.persistence.Embeddable;
+
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Embeddable
+
 @Getter
 @NoArgsConstructor
 public class Location {

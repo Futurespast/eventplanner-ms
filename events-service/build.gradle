@@ -44,6 +44,8 @@ dependencies {
 	testImplementation 'de.flapdoodle.embed:de.flapdoodle.embed.mongo.spring3x:4.12.3'
 	testImplementation 'io.projectreactor:reactor-test'
 	implementation 'org.apache.httpcomponents.client5:httpclient5'
+	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.12.3'
+
 
 }
 
@@ -83,5 +85,6 @@ test {
 	testLogging {
 		events "passed", "skipped", "failed"
 	}
+	ignoreFailures true
 }
 

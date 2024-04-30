@@ -4,6 +4,7 @@ package com.eventplanner.events.presentationlayer;
 import com.eventplanner.events.dataacesslayer.EventDate;
 import com.eventplanner.events.domainclientlayer.Participant.ParticipantModel;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -13,6 +14,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class EventResponseModel {
     private String eventId;
     private String venueId;

@@ -37,7 +37,7 @@ public class CustomerController {
     }
 
     @PutMapping(value = "/{customerId}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<CustomerResponseModel> updateCustomer(@RequestBody CustomerRequestModel customerRequestModel, String customerId){
+    public ResponseEntity<CustomerResponseModel> updateCustomer(@RequestBody CustomerRequestModel customerRequestModel, @PathVariable String customerId){
         customerService.updateCustomer(customerRequestModel,customerId);
         CustomerResponseModel customerResponseModel = customerService.getCustomerById(customerId);
         return ResponseEntity.ok().body(customerResponseModel);
