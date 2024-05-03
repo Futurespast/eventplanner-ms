@@ -81,7 +81,36 @@ class CustomerServiceUnitTest {
         assertEquals("zip",customerResponseModel.getPostalCode());
     }
 
+    @Test
+    public void AddCustomerWithInvalidId(){
+        when(customersServiceClient.getCustomerByCustomerId(any())).thenThrow(new NotFoundException("Customerid provided is invalid"));
+        when(customersServiceClient.addCustomer(any())).thenThrow(new NotFoundException("Customerid provided is invalid"));
+    }
 
+    @Test
+    public void UpdateCustomer(){
+        CustomerRequestModel customerRequestModel = new CustomerRequestModel("John","Doe","asq@gmail","address","city","state","country","zip",new ArrayList<>());
+        doNothing().when(customersServiceClient).updateCustomer(customerRequestModel, "1111");
+        customerService.updateCustomer(customerRequestModel,"1111");
+    }
 
+    @Test
+    public void UpdateCustomerWithInvalidId(){
+        CustomerRequestModel customerRequestModel = new CustomerRequestModel("John","Doe","asq@gmail","address","city","state","country","zip",new ArrayList<>());
+        doThrow(new NotFoundException("Customerid provided is invalid")).when(customersServiceClient).updateCustomer(customerRequestModel, "1111");
+        assertThrows(NotFoundException.class,()->customerService.updateCustomer(customerRequestModel,"1111"));
+    }
+
+    @Test
+    public void DeleteCustomer(){
+        doNothing().when(customersServiceClient).deleteCustomer("1111");
+        customerService.deleteCustomer("1111");
+    }
+
+    @Test
+    public void DeleteCustomerWithInvalidId(){
+        doThrow(new NotFoundException("Customerid provided is invalid")).when(customersServiceClient).deleteCustomer("1111");
+        assertThrows(NotFoundException.class,()->customerService.deleteCustomer("1111"));
+    }
 
 }
