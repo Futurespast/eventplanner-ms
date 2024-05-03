@@ -19,7 +19,6 @@ import com.eventplanner.events.utils.InvalidInputException;
 import com.eventplanner.events.utils.NotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 @Service
@@ -49,7 +48,7 @@ public class EventServiceImpl implements EventService{
     public List<EventResponseModel> getEvents(String customerId) {
         CustomerModel customer =customersServiceClient.getCustomerByCustomerId(customerId);
         if(customer == null){
-            throw new InvalidInputException("Customerid provided is invalid"+ customerId);
+            throw new NotFoundException("Customerid provided is invalid"+ customerId);
         }
 
         List<Event> events = eventRepository.getAllByCustomerModel_CustomerId(customerId);
@@ -84,7 +83,7 @@ public class EventServiceImpl implements EventService{
         if(!venueModel.getAvailableDates().contains(eventRequestModel.getEventDate().getStartDate())||!venueModel.getAvailableDates().contains(eventRequestModel.getEventDate().getEndDate())){
             throw new InvalidEventDateException("Event date is not available with the venue");
         }
-        venuesServiceClient.updateVenueDates(venueModel.getVenueId(), eventRequestModel.getEventDate().getStartDate(),eventRequestModel.getEventDate().getEndDate());
+        venuesServiceClient.patchForPostVenueDates(venueModel.getVenueId(), eventRequestModel.getEventDate().getStartDate(),eventRequestModel.getEventDate().getEndDate());
         List<ParticipantModel> participantModels = new ArrayList<>();
         List<String> participantIds = eventRequestModel.getParticipantIds();
         if (participantIds != null) {
@@ -113,9 +112,32 @@ public class EventServiceImpl implements EventService{
         if(venueModel == null){
             throw new InvalidInputException("venue id provided is "+ eventRequestModel.getVenueId());
         }
+        Event foundEvent = eventRepository.getEventByCustomerModel_CustomerIdAndEventIdentifier_EventId(customerId,eventId);
+        if(foundEvent == null){
+            throw new InvalidInputException("eventId provided is invalid "+ eventId);
+        }
+        if(foundEvent.getEventDate().getStartDate().isEqual(eventRequestModel.getEventDate().getStartDate()) && foundEvent.getEventDate().getEndDate().isEqual(eventRequestModel.getEventDate().getEndDate())){
+            List<ParticipantModel> participantModels = new ArrayList<>();
+            List<String> participantIds = eventRequestModel.getParticipantIds();
+            if (participantIds != null) {
+                for (String id : participantIds) {
+                    ParticipantModel participant = participantsServiceClient.getParticipantById(id);
+                    if (participant == null) {
+                        throw new InvalidInputException("Participant ID provided is invalid: " + id);
+                    }
+                    participantModels.add(participant);
+                }
+            }
+            Event event = eventRequestMapper.eventRequestModelToEntity(eventRequestModel, foundEvent.getEventIdentifier(),venueModel,customer);
+            event.setParticipantModels(participantModels);
+            eventRepository.delete(foundEvent);
+            Event save = eventRepository.save(event);
+            return eventResponseMapper.entityToEventResponseModel(save);
+        }
         if(!venueModel.getAvailableDates().contains(eventRequestModel.getEventDate().getStartDate())||!venueModel.getAvailableDates().contains(eventRequestModel.getEventDate().getEndDate())){
             throw new InvalidEventDateException("Event date is not available with the venue");
         }
+        venuesServiceClient.patchForPutVenueDates(venueModel.getVenueId(),foundEvent.getEventDate().getStartDate(),foundEvent.getEventDate().getEndDate(),eventRequestModel.getEventDate().getStartDate(),eventRequestModel.getEventDate().getEndDate());
         List<ParticipantModel> participantModels = new ArrayList<>();
         List<String> participantIds = eventRequestModel.getParticipantIds();
         if (participantIds != null) {
@@ -126,10 +148,6 @@ public class EventServiceImpl implements EventService{
                 }
                 participantModels.add(participant);
             }
-        }
-        Event foundEvent = eventRepository.getEventByCustomerModel_CustomerIdAndEventIdentifier_EventId(customerId,eventId);
-        if(foundEvent == null){
-            throw new InvalidInputException("eventId provided is invalid "+ eventId);
         }
         Event event = eventRequestMapper.eventRequestModelToEntity(eventRequestModel, foundEvent.getEventIdentifier(),venueModel,customer);
         event.setParticipantModels(participantModels);

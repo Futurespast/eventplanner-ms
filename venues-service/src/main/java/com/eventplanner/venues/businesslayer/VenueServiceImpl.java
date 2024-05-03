@@ -14,6 +14,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 @Service
@@ -78,36 +80,67 @@ public class VenueServiceImpl implements VenueService {
     }
 
     @Override
-    public VenueResponseModel changeVenueDates(String venueId, LocalDate start, LocalDate end) {
+    public VenueResponseModel patchForPostVenueDates(String venueId, LocalDate start, LocalDate end) {
         Venue existingVenue = venueRepository.findVenueByVenueIdentifier_VenueId(venueId);
         if(existingVenue == null){
             throw new NotFoundException("venueId does not exist "+venueId);
         }
-        List<LocalDate> dates = existingVenue.getAvailableDates();
-        if(start.isEqual(end)){
-            for (LocalDate date:dates
-                 ) {
-                if(date.isEqual(start)){
-                    dates.remove(date);
-                }
-            }
-            existingVenue.setAvailableDates(dates);
-            return venueResponseMapper.entityToVenueResponseModel(venueRepository.save(existingVenue));
-        }
-        for (LocalDate date:dates
-        ) {
-            if(date.isEqual(start)){
-                dates.remove(date);
-            }
-        }
-        for (LocalDate date:dates
-        ) {
-            if(date.isEqual(end)){
-                dates.remove(date);
+        List<LocalDate> dates = new ArrayList<>(existingVenue.getAvailableDates());
+        Iterator<LocalDate> dateIterator = dates.iterator();
+
+        while (dateIterator.hasNext()) {
+            LocalDate date = dateIterator.next();
+            if ((date.isEqual(start) && start.isEqual(end)) || date.isEqual(start) || date.isEqual(end)) {
+                dateIterator.remove();
             }
         }
         existingVenue.setAvailableDates(dates);
         return venueResponseMapper.entityToVenueResponseModel(venueRepository.save(existingVenue));
+    }
+
+    @Override
+    public VenueResponseModel patchForPutVenueDates(String venueId, LocalDate addStart, LocalDate addEnd, LocalDate removeStart, LocalDate removeEnd) {
+        Venue existingVenue = venueRepository.findVenueByVenueIdentifier_VenueId(venueId);
+        if(existingVenue == null){
+            throw new NotFoundException("venueId does not exist "+venueId);
+        }
+
+        List<LocalDate> currentDates = existingVenue.getAvailableDates();
+        List<LocalDate> datesToRemove = new ArrayList<>();
+        List<LocalDate> datesToAdd = new ArrayList<>();
+
+
+        if (!removeStart.isEqual(removeEnd)) {
+            for (LocalDate date : currentDates) {
+                if (date.isEqual(removeStart) || date.isEqual(removeEnd)) {
+                    datesToRemove.add(date);
+                }
+            }
+        } else {
+            for (LocalDate date : currentDates) {
+                if (date.isEqual(removeStart)) {
+                    datesToRemove.add(date);
+                }
+            }
+        }
+
+
+        if (!addStart.isEqual(addEnd)) {
+            datesToAdd.add(addStart);
+            datesToAdd.add(addEnd);
+        } else {
+            datesToAdd.add(addStart);
+        }
+
+
+        currentDates.removeAll(datesToRemove);
+
+
+        currentDates.addAll(datesToAdd);
+
+        existingVenue.setAvailableDates(currentDates);
+        return venueResponseMapper.entityToVenueResponseModel(venueRepository.save(existingVenue));
+
     }
 
     @Override

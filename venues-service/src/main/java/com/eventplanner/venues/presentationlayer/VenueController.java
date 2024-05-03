@@ -41,8 +41,14 @@ public class VenueController {
     }
 
     @PatchMapping(value= "/{venueId}/{startDate}/{endDate}", produces = "application/json", consumes = "application/json")
-    public ResponseEntity<VenueResponseModel> updateAvailableVenueDates(@PathVariable String venueId, @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)LocalDate startDate, @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)LocalDate endDate){
-        return  ResponseEntity.ok().body(venueService.changeVenueDates(venueId,startDate,endDate));
+    public ResponseEntity<VenueResponseModel> patchForPostAvailableVenueDates(@PathVariable String venueId, @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)LocalDate startDate, @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)LocalDate endDate){
+        return  ResponseEntity.ok().body(venueService.patchForPostVenueDates(venueId,startDate,endDate));
+    }
+
+    @PatchMapping(value= "/{venueId}/{addStartDate}/{AddEndDate}/{removeStartDate}/{RemoveEndDate}", produces = "application/json", consumes = "application/json")
+    public ResponseEntity<VenueResponseModel> patchForPutAvailableVenueDates(@PathVariable String venueId, @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)LocalDate addStartDate, @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)LocalDate AddEndDate
+    ,@PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)LocalDate removeStartDate, @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)LocalDate RemoveEndDate){
+        return  ResponseEntity.ok().body(venueService.patchForPutVenueDates(venueId,addStartDate,AddEndDate,removeStartDate,RemoveEndDate));
     }
 
     @DeleteMapping("/{venueId}")

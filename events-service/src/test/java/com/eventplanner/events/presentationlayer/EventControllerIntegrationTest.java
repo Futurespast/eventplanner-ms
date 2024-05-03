@@ -487,4 +487,87 @@ class EventControllerIntegrationTest {
                  .jsonPath("$.message").isEqualTo("eventId provided is invalid "+eventId);
      }
 
+    @Test
+    public void whenValidEventButDateDifferent_UpdateEvent() throws JsonProcessingException, URISyntaxException {
+        long sizeDB = eventRepository.count();
+
+        CustomerModel customerModel = new CustomerModel().builder()
+                .customerId("c3540a89-cb47-4c96-888e-ff96708db4d8")
+                .firstName("John")
+                .lastName("Doe")
+                .build();
+
+        mockRestServiceServer.expect(ExpectedCount.once(),requestTo(new URI(CUSTOMER_BASE_URI+"/c3540a89-cb47-4c96-888e-ff96708db4d8")))
+                .andExpect(method(HttpMethod.GET)).andRespond(withStatus(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(mapper.writeValueAsString(customerModel)));
+
+        List<Event> events = eventRepository.getAllByCustomerModel_CustomerId(customerModel.getCustomerId());
+        Event event = events.stream().filter(e -> e.getVenueModel().getVenueId().equals("8d996257-e535-4614-98f6-4596be2a3626")).findFirst().get();
+        assertNotNull(event);
+        String url = EVENT_BASE_URI + "/" + customerModel.getCustomerId()+ "/events/"+event.getEventIdentifier().getEventId();
+        List<ParticipantModel> participantModelList = new ArrayList<>();
+        ParticipantModel participant1 = ParticipantModel.builder()
+                .participantId("25a249e0-52c1-4911-91e2-b50fffef55e6")
+                .firstName("John").lastName("Doe").emailAddress("john.doe@example.com").specialNote("Vegetarian").build();
+        ParticipantModel participant2 = ParticipantModel.builder()
+                .participantId("10a9dc8f-6259-4c0e-997f-38cc8773596a").firstName("Jane").lastName("Smith").emailAddress("jane.smith@example.com").specialNote("Allergic to nuts").build();
+        participantModelList.add(participant1);
+        participantModelList.add(participant2);
+        List<LocalDate> localDates = new ArrayList<>();
+        LocalDate date = LocalDate.of(2024, 10, 1);
+        LocalDate date2 = LocalDate.of(2024, 10, 2);
+        LocalDate date3 = LocalDate.of(2024, 10, 3);
+        LocalDate date4 = LocalDate.of(2024, 10, 4);
+        List<LocalDate> ogDates = new ArrayList<>();
+        ogDates.add(date);
+        ogDates.add(date2);
+        ogDates.add(date3);
+        ogDates.add(date4);
+        localDates.add(date);
+        localDates.add(date2);
+        VenueModel venueModel = VenueModel.builder()
+                .venueId("8d996257-e535-4614-98f6-4596be2a3626")
+                .name("Venue 1")
+                .availableDates(ogDates)
+                .build();
+        VenueModel changed = VenueModel.builder()
+                .venueId("8d996257-e535-4614-98f6-4596be2a3626")
+                .name("Venue 1")
+                .availableDates(localDates)
+                .build();
+
+
+        mockRestServiceServer.expect(ExpectedCount.once(),requestTo(new URI("http://localhost:7002/api/v1/venues/8d996257-e535-4614-98f6-4596be2a3626")))
+                .andExpect(method(HttpMethod.GET)).andRespond(withStatus(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(mapper.writeValueAsString(venueModel)));
+        mockRestServiceServer.expect(ExpectedCount.once(),requestTo(new URI("http://localhost:7002/api/v1/venues/8d996257-e535-4614-98f6-4596be2a3626/2024-10-01/2024-10-02/2024-10-03/2024-10-04")))
+                .andExpect(method(HttpMethod.PATCH)).andRespond(withStatus(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(mapper.writeValueAsString(changed)));
+        mockRestServiceServer.expect(ExpectedCount.once(),requestTo(new URI("http://localhost:7003/api/v1/participants/25a249e0-52c1-4911-91e2-b50fffef55e6")))
+                .andExpect(method(HttpMethod.GET)).andRespond(withStatus(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(mapper.writeValueAsString(participant1)));
+        mockRestServiceServer.expect(ExpectedCount.once(),requestTo(new URI("http://localhost:7003/api/v1/participants/10a9dc8f-6259-4c0e-997f-38cc8773596a")))
+                .andExpect(method(HttpMethod.GET)).andRespond(withStatus(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(mapper.writeValueAsString(participant2)));
+
+
+        EventRequestModel eventRequestModel = EventRequestModel.builder()
+                .customerId(customerModel.getCustomerId())
+                .eventName("Concert1")
+                .eventStatus("PLANNED")
+                .description("Concert performed by DJ Sam")
+                .venueId(venueModel.getVenueId())
+                .eventDate(new EventDate(date3,date4))
+                .participantIds(List.of(participant1.getParticipantId(),participant2.getParticipantId()))
+                .build();
+        webTestClient.put().uri(url).accept(MediaType.APPLICATION_JSON).bodyValue(eventRequestModel).exchange().expectStatus().isOk().expectHeader().contentType(MediaType.APPLICATION_JSON).expectBody(EventResponseModel.class).value((response)->
+        {
+            assertNotNull(response);
+            assertEquals(eventRequestModel.getCustomerId(),response.getCustomerId());
+            assertEquals(eventRequestModel.getVenueId(),response.getVenueId());
+            assertEquals(eventRequestModel.getEventName(),response.getEventName());
+            assertEquals(eventRequestModel.getDescription(),response.getDescription());
+            assertEquals(eventRequestModel.getEventDate().getStartDate(),response.getEventDate().getStartDate());
+            assertEquals(eventRequestModel.getEventDate().getEndDate(),response.getEventDate().getEndDate());
+            assertEquals(eventRequestModel.getEventStatus(),response.getEventStatus());
+            assertEquals(participantModelList.size(),response.getParticipants().size());
+            assertEquals(sizeDB,eventRepository.count());
+        });
+    }
+
 }

@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import java.time.LocalDate;
@@ -57,6 +58,62 @@ class VenueControllerIntegrationTest {
         webTestClient.get().uri(BASE_URI_VENUE +"/"+ NOT_FOUND_VENUE_ID).accept(MediaType.APPLICATION_JSON)
                 .exchange().expectStatus().isNotFound().expectBody().jsonPath("$.httpStatus").isEqualTo("NOT_FOUND")
                 .jsonPath("$.message").isEqualTo("venueId does not exist "+ NOT_FOUND_VENUE_ID);
+    }
+
+    @Test
+    public void WhenInvalidVenueId_ForPatchPost(){
+        webTestClient.get().uri(BASE_URI_VENUE +"/"+ "1234").accept(MediaType.APPLICATION_JSON)
+                .exchange().expectStatus().isEqualTo(HttpStatus.NOT_FOUND).expectBody().jsonPath("$.httpStatus").isEqualTo("NOT_FOUND")
+                .jsonPath("$.message").isEqualTo("venueId does not exist 1234");
+    }
+
+    @Test
+    public void WhenValidVenueId_ForPatchPost() {
+        LocalDate startDate = LocalDate.of(2024, 10, 01);
+        LocalDate endDate = LocalDate.of(2024, 10, 02);
+        webTestClient.patch().uri(BASE_URI_VENUE + "/" + FOUND_VENUE_ID + "/"+ startDate+"/"+endDate).contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
+                .exchange().expectStatus().isOk().expectBody(VenueResponseModel.class).value((venueResponseModel -> {
+                    assertNotNull(venueResponseModel);
+                    assertEquals(FOUND_VENUE_NAME, venueResponseModel.getName());
+                    assertEquals(FOUND_VENUE_LOCATION.getStreetAddress(), venueResponseModel.getLocation().getStreetAddress());
+                    assertEquals(FOUND_VENUE_LOCATION.getCity(), venueResponseModel.getLocation().getCity());
+                    assertEquals(FOUND_VENUE_LOCATION.getProvince(), venueResponseModel.getLocation().getProvince());
+                    assertEquals(FOUND_VENUE_LOCATION.getCountry(), venueResponseModel.getLocation().getCountry());
+                    assertEquals(FOUND_VENUE_LOCATION.getPostalCode(), venueResponseModel.getLocation().getPostalCode());
+                    assertEquals(FOUND_VENUE_CAPACITY, venueResponseModel.getCapacity());
+                    assertEquals(0, venueResponseModel.getAvailableDates().size());
+                }));
+    }
+
+    @Test
+    public void WhenInvalidVenueId_ForPatchPut() {
+        LocalDate addStartDate = LocalDate.of(2024, 10, 01);
+        LocalDate addEndDate = LocalDate.of(2024, 10, 02);
+        LocalDate removeStartDate = LocalDate.of(2024, 10, 03);
+        LocalDate removeEndDate = LocalDate.of(2024, 10, 04);
+        webTestClient.patch().uri(BASE_URI_VENUE + "/" + "1234" + "/"+ addStartDate+"/"+addEndDate+"/"+removeStartDate+"/"+removeEndDate).contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
+                .exchange().expectStatus().isEqualTo(HttpStatus.NOT_FOUND).expectBody().jsonPath("$.httpStatus").isEqualTo("NOT_FOUND")
+                .jsonPath("$.message").isEqualTo("venueId does not exist 1234");
+    }
+
+    @Test
+    public void WhenValidVenueId_ForPatchPut() {
+        LocalDate addStartDate = LocalDate.of(2024, 10, 04);
+        LocalDate addEndDate = LocalDate.of(2024, 10, 03);
+        LocalDate removeStartDate = LocalDate.of(2024, 10, 01);
+        LocalDate removeEndDate = LocalDate.of(2024, 10, 02);
+        webTestClient.patch().uri(BASE_URI_VENUE + "/" + FOUND_VENUE_ID + "/"+ addStartDate+"/"+addEndDate+"/"+removeStartDate+"/"+removeEndDate).contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
+                .exchange().expectStatus().isOk().expectBody(VenueResponseModel.class).value((venueResponseModel -> {
+                    assertNotNull(venueResponseModel);
+                    assertEquals(FOUND_VENUE_NAME, venueResponseModel.getName());
+                    assertEquals(FOUND_VENUE_LOCATION.getStreetAddress(), venueResponseModel.getLocation().getStreetAddress());
+                    assertEquals(FOUND_VENUE_LOCATION.getCity(), venueResponseModel.getLocation().getCity());
+                    assertEquals(FOUND_VENUE_LOCATION.getProvince(), venueResponseModel.getLocation().getProvince());
+                    assertEquals(FOUND_VENUE_LOCATION.getCountry(), venueResponseModel.getLocation().getCountry());
+                    assertEquals(FOUND_VENUE_LOCATION.getPostalCode(), venueResponseModel.getLocation().getPostalCode());
+                    assertEquals(FOUND_VENUE_CAPACITY, venueResponseModel.getCapacity());
+                    assertEquals(2, venueResponseModel.getAvailableDates().size());
+                }));
     }
 
     @Test

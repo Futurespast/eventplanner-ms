@@ -17,7 +17,9 @@ public interface VenueService {
 
     VenueResponseModel updateVenue(VenueRequestModel venueRequestModel, String venueId);
 
-    VenueResponseModel changeVenueDates(String venueId, LocalDate start, LocalDate end);
+    VenueResponseModel patchForPostVenueDates(String venueId, LocalDate start, LocalDate end);
+
+    VenueResponseModel patchForPutVenueDates(String venueId, LocalDate addStart, LocalDate AddEnd, LocalDate removeStart, LocalDate removeEnd);
 
     void deleteVenue(String venueId);
 

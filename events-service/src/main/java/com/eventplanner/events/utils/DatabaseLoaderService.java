@@ -43,7 +43,7 @@ public class DatabaseLoaderService implements CommandLineRunner {
                 .lastName("Doe")
                 .build();
         EventIdentifier eventIdentifier = new EventIdentifier();
-        EventDate eventDate = new EventDate(date,date);
+        EventDate eventDate = new EventDate(date,date2);
         Event event = Event.builder()
                 .eventIdentifier(eventIdentifier)
                 .eventStatus(EventStatus.PLANNED)

@@ -1,6 +1,5 @@
 package com.eventplanner.events.domainclientlayer.Venue;
 
-import com.eventplanner.events.domainclientlayer.Customer.CustomerModel;
 import com.eventplanner.events.utils.HttpErrorInfo;
 import com.eventplanner.events.utils.InvalidInputException;
 import com.eventplanner.events.utils.NotFoundException;
@@ -14,7 +13,6 @@ import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
 import java.time.LocalDate;
-import java.util.UUID;
 
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY;
@@ -47,8 +45,22 @@ public class VenuesServiceClient {
         }
     }
 
-    public VenueModel updateVenueDates(String venueId, LocalDate start, LocalDate end) {
+    public VenueModel patchForPostVenueDates(String venueId, LocalDate start, LocalDate end) {
         String url = VENUES_SERVICE_BASE_URL + "/" + venueId +"/"+ start + "/" + end;
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<String> requestEntity = new HttpEntity<>(null, headers);
+        try {
+            ResponseEntity<VenueModel> response = restTemplate.exchange(url, HttpMethod.PATCH, requestEntity, VenueModel.class);
+            return response.getBody();
+        } catch (HttpClientErrorException ex) {
+            throw handleHttpClientException(ex);
+        }
+    }
+
+    public VenueModel patchForPutVenueDates(String venueId, LocalDate addStart, LocalDate addEnd, LocalDate removeStart, LocalDate removeEnd) {
+        String url = VENUES_SERVICE_BASE_URL + "/" + venueId + "/" + addStart + "/" + addEnd + "/" + removeStart + "/" + removeEnd;
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
